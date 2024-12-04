@@ -1,0 +1,7 @@
+Hello from text file!
+this is the second line
+
+Did you notice the empty line above?
+
+#
+ending line of the file
