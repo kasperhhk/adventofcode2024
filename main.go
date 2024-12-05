@@ -1,7 +1,9 @@
 package main
 
-import aoc "khhk-adventofcode2024/aoc/1"
+import (
+	aoc "khhk-adventofcode2024/aoc/2"
+)
 
 func main() {
-	aoc.Aoc1()
+	aoc.Aoc()
 }
