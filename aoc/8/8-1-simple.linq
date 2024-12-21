@@ -32,7 +32,6 @@ void Main()
 	}
 	
 	//DumpIt();
-	File.WriteAllText(@"C:\Users\kaspe\Documents\dev\GIT\adventofcode2024\aoc\8\Q2.txt", string.Join("\n", l.Select(_ => _.ToString())));
 	
 	var s = 0L;
 	for (var i=0; i<l.Count; i++) {
