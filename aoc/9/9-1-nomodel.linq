@@ -16,30 +16,49 @@ void Main()
 
 public long Do(ReadOnlySpan<char> span)
 {
+	// the final sum
 	var sum = 0L;
 	
+	// lasti is the index of the last fileblock in the input memory string
 	var lasti = span.Length-1;
+	
+	// lastn is the size of the last fileblock in the input memory string
+	// this variable will be reduced every time we swap a single cell in the file block to a free space
 	var lastn = span[lasti] - '0';
+	
+	// function to move to the next last fileblock and update the index / size variable
+	// used when done swapping the last fileblock
 	void NextLast(ReadOnlySpan<char> span)
 	{
 		lasti -= 2;
 		lastn = span[lasti] - '0';
 	}
 	
+	// sumi is the index of the actual memory cell that we're calculating the value for to add to the final sum
+	// we never model the actual memory as an array, so we have to virtually keep track of the index in this variable
 	var sumi = 0L;
+	
+	// i is current running index in the input memory string
 	for (var i = 0; i < span.Length; i++)
 	{
+		// if i is even then we are processing a fileblock
 		if (i % 2 == 0)
 		{
+			// b is the size of the fileblock
 			var b = span[i] - '0';
+			
+			// bi is the integer ID of the fileblock
 			var bi = i / 2;
 			
-			if (i == lasti) // edge case
+			// if we have arrived at the last fileblock
+			// then part of it may have been swapped to free space
+			if (i == lasti)
 			{
+				// correct the size to the actual remaining size
 				b = lastn;
-				lastn = 0;
+				lastn = 0; // idk if this is necessary, but w/e
 				
-				if (b == 0) // shortcut no more allocations
+				if (b == 0) // shortcut, no more allocations
 				{
 					return sum;
 				}
@@ -51,26 +70,45 @@ public long Do(ReadOnlySpan<char> span)
 			// which reduces to:
 			// 4(sumi * bi) + (0+1+2+3) * bi
 			sum += (b * sumi * bi) + (((b * (b - 1)) / 2) * bi);
+			
+			// increment the virtual memory index b times, since we processed b fileblock cells
 			sumi += b;
 		}
+		// else we are processing a free space block
 		else
 		{
-			// can't shortcut free space, since we might have to switch allocation block during swap
+			// can't shortcut free space like we did with the fileblock
+			// since we might have to switch file block during swap
 			var free = span[i] - '0';
+			
+			// loop through the free space and swap the last cell in the last file block to it
+			// and update the sum at the same time
 			for (var fi = 0; fi < free; fi++)
 			{
+				// last fileblock ran out of cells to swap
 				if (lastn == 0)
 				{
+					// find the next last fileblock
 					NextLast(span);
-					if (lasti < i) //shortcut since there's no more allocations to swap with free space
+					
+					// if the next last fileblock is to the left of where we are, 
+					// then there's no more fileblocks left that can be swapped
+					if (lasti < i)
 					{
 						return sum;
 					}
 				}
 				
+				// bi is the integer ID of the fileblock
 				var bi = lasti / 2;
+				
+				// normal sum calculation
 				sum += sumi * bi;
+				
+				// increment the virtual memory index since we processed a cell
 				sumi++;
+				
+				// consume a cell from the last fileblock
 				lastn--;
 			}
 		}
