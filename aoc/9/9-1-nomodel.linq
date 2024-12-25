@@ -56,7 +56,10 @@ public long Do(ReadOnlySpan<char> span)
 			{
 				// correct the size to the actual remaining size
 				b = lastn;
-				lastn = 0; // idk if this is necessary, but w/e
+				
+				// set lastn to zero so that next loop will detect that we're done
+				// there's probably a better way to do it, but w/e this worked :D
+				lastn = 0;
 				
 				if (b == 0) // shortcut, no more allocations
 				{
