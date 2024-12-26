@@ -16,7 +16,7 @@ func Aoc() {
 	stones := parse(lines)
 	//matrix.PrintMatrix(arr)
 
-	sum := part1(stones)
+	sum := part1(linkedlist(stones))
 	fmt.Println("Sum 1: ", sum)
 
 	sum2 := part2(stones)
@@ -55,45 +55,66 @@ func part1(l *list.List) int {
 
 /* PART 2 SPECIFICS */
 
-func part2(l *list.List) int {
+func part2(stones []int) int {
+	cache := make(map[int]int)
+	for _, s := range stones {
+		cache[s] = cache[s] + 1
+	}
+
+	fmt.Println(cache)
+
 	for i := 0; i < 75; i++ {
-		for e := l.Front(); e != nil; e = e.Next() {
-			val := e.Value.(int)
-			if val == 0 {
-				e.Value = 1
+		nextcache := make(map[int]int)
+		for k, v := range cache {
+			if k == 0 {
+				nextcache[1] = nextcache[1] + v
 				continue
 			}
 
-			s := strconv.Itoa(val)
+			s := strconv.Itoa(k)
 			if len(s)%2 == 0 {
 				left, _ := strconv.Atoi(s[:len(s)/2])
 				right, _ := strconv.Atoi(s[len(s)/2:])
 
-				l.InsertBefore(left, e)
-				nexte := l.InsertBefore(right, e)
-				l.Remove(e)
-				e = nexte
+				nextcache[left] = nextcache[left] + v
+				nextcache[right] = nextcache[right] + v
 				continue
 			}
 
-			e.Value = val * 2024
+			nk := k * 2024
+			nextcache[nk] = nextcache[nk] + v
 		}
+
+		cache = nextcache
 	}
 
-	return l.Len()
+	sum := 0
+	for _, v := range cache {
+		sum += v
+	}
+
+	return sum
 }
 
 /* MODELLING */
 
 /* PARSING */
 
-func parse(lines []string) *list.List {
-	stones := list.New()
-
+func parse(lines []string) (stones []int) {
 	for _, s := range strings.Split(lines[0], " ") {
 		i, _ := strconv.Atoi(s)
-		stones.PushBack(i)
+		stones = append(stones, i)
 	}
 
-	return stones
+	return
+}
+
+func linkedlist(stones []int) *list.List {
+	ll := list.New()
+
+	for _, i := range stones {
+		ll.PushBack(i)
+	}
+
+	return ll
 }
